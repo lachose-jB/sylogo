@@ -1,0 +1,24 @@
+node_modules/
+.env
+.env.local
+.env.production
+
+# Uploads locaux (ne pas versionner les fichiers uploadés)
+api/uploads/
+
+# Build
+front_end/dist/
+App/build/
+
+# Prisma
+back_end/prisma/migrations/*.sql.bak
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Firebase (contient des clés privées !)
+google-services.json
+google-services\ (2\).json
+*-firebase-adminsdk-*.json
+App

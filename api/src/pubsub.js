@@ -1,0 +1,11 @@
+import { PubSub } from 'graphql-subscriptions';
+
+export const pubsub = new PubSub();
+
+export const EVENTS = {
+  ORDER_STATUS_CHANGED: 'ORDER_STATUS_CHANGED',
+  DELIVERY_LOCATION_UPDATED: 'DELIVERY_LOCATION_UPDATED',
+  NEW_ORDER: 'NEW_ORDER',
+  PRODUCT_ADDED: 'PRODUCT_ADDED',
+  PRODUCT_UPDATED: 'PRODUCT_UPDATED',
+};

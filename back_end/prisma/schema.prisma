@@ -1,0 +1,276 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  CLIENT
+  VENDOR
+  DELIVERY
+  ADMIN
+}
+
+enum UserStatus {
+  PENDING
+  ACTIVE
+  SUSPENDED
+  REJECTED
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PREPARING
+  READY
+  PICKED_UP
+  IN_TRANSIT
+  DELIVERED
+  CANCELLED
+  REFUNDED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  ORANGE_MONEY
+  CASH
+}
+
+enum ProductStatus {
+  PENDING_REVIEW
+  APPROVED
+  REJECTED
+}
+
+model User {
+  id              String     @id @default(uuid())
+  phone           String     @unique
+  email           String?    @unique
+  passwordHash    String
+  firstName       String
+  lastName        String
+  role            UserRole
+  status          UserStatus @default(PENDING)
+  twoFactorSecret       String?
+  fcmToken              String?
+  favoriteDeliveryManId String?
+  createdAt             DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  vendorProfile   VendorProfile?
+  deliveryProfile DeliveryProfile?
+  clientOrders    Order[]          @relation("ClientOrders")
+  reviews         Review[]         @relation("ReviewAuthor")
+  auditLogs       AuditLog[]
+  sessions        Session[]
+
+  @@map("users")
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  userId    String
+  token     String   @unique @db.VarChar(512)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VendorProfile {
+  id              String   @id @default(uuid())
+  userId          String   @unique
+  businessName    String
+  businessType    String
+  address         String
+  latitude        Float
+  longitude       Float
+  coverageRadius  Float    @default(5.0)
+  commissionRate  Float    @default(0.1)
+  isOpen          Boolean  @default(false)
+  openingHours    Json?
+  documents       Json?
+  averageRating   Float    @default(0)
+  totalReviews    Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  products Product[]
+  orders   Order[]   @relation("VendorOrders")
+  reviews  Review[]  @relation("VendorReviews")
+
+  @@map("vendor_profiles")
+}
+
+model DeliveryProfile {
+  id             String   @id @default(uuid())
+  userId         String   @unique
+  vehicleType    String
+  licenseNumber  String
+  currentLat     Float?
+  currentLng     Float?
+  isAvailable    Boolean  @default(false)
+  averageRating  Float    @default(0)
+  totalDeliveries Int     @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  deliveries Delivery[]
+  reviews    Review[]   @relation("DeliveryReviews")
+
+  @@map("delivery_profiles")
+}
+
+model Product {
+  id            String        @id @default(uuid())
+  vendorId      String
+  name          String
+  description   String?
+  price         Float
+  stock         Int           @default(0)
+  imageUrls     Json?
+  category      String
+  status        ProductStatus @default(PENDING_REVIEW)
+  rejectionNote String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  vendor     VendorProfile @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  orderItems OrderItem[]
+
+  @@map("products")
+}
+
+model Order {
+  id              String        @id @default(uuid())
+  clientId        String
+  vendorId        String
+  status          OrderStatus   @default(PENDING)
+  deliveryAddress String
+  deliveryLat     Float
+  deliveryLng     Float
+  deliveryFee     Float
+  subtotal        Float
+  total           Float
+  paymentMethod   PaymentMethod
+  paymentStatus   PaymentStatus @default(PENDING)
+  notes           String?
+  estimatedTime   Int?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  client     User          @relation("ClientOrders", fields: [clientId], references: [id])
+  vendor     VendorProfile @relation("VendorOrders", fields: [vendorId], references: [id])
+  items      OrderItem[]
+  delivery   Delivery?
+  payment    Payment?
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id        String @id @default(uuid())
+  orderId   String
+  productId String
+  quantity  Int
+  unitPrice Float
+  subtotal  Float
+
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
+
+  @@map("order_items")
+}
+
+model Delivery {
+  id              String    @id @default(uuid())
+  orderId         String    @unique
+  deliveryManId   String?
+  currentLat      Float?
+  currentLng      Float?
+  pickedUpAt      DateTime?
+  deliveredAt     DateTime?
+  proofImageUrl   String?
+  notes           String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  order       Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  deliveryMan DeliveryProfile? @relation(fields: [deliveryManId], references: [id])
+
+  @@map("deliveries")
+}
+
+model Payment {
+  id               String        @id @default(uuid())
+  orderId          String        @unique
+  amount           Float
+  method           PaymentMethod
+  status           PaymentStatus @default(PENDING)
+  transactionId    String?
+  orangeMoneyRef   String?
+  refundedAt       DateTime?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@map("payments")
+}
+
+model Review {
+  id             String   @id @default(uuid())
+  authorId       String
+  vendorId       String?
+  deliveryManId  String?
+  orderId        String
+  rating         Int
+  comment        String?
+  createdAt      DateTime @default(now())
+
+  author      User             @relation("ReviewAuthor", fields: [authorId], references: [id])
+  vendor      VendorProfile?   @relation("VendorReviews", fields: [vendorId], references: [id])
+  deliveryMan DeliveryProfile? @relation("DeliveryReviews", fields: [deliveryManId], references: [id])
+
+  @@map("reviews")
+}
+
+model PlatformSettings {
+  id                String   @id @default(uuid())
+  baseDeliveryFee   Float    @default(1000)
+  pricePerKm        Float    @default(500)
+  defaultCommission Float    @default(0.1)
+  coverageZones     Json?
+  maintenanceMode   Boolean  @default(false)
+  updatedAt         DateTime @updatedAt
+
+  @@map("platform_settings")
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  adminId   String
+  action    String
+  entity    String
+  entityId  String
+  details   Json?
+  ipAddress String?
+  createdAt DateTime @default(now())
+
+  admin User @relation(fields: [adminId], references: [id])
+
+  @@map("audit_logs")
+}

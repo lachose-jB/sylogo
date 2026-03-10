@@ -1,0 +1,16 @@
+{
+  "name": "syligogo-platform",
+  "version": "1.0.0",
+  "description": "SyliGo Delivery Platform monorepo",
+  "private": true,
+  "scripts": {
+    "install:all": "npm install --prefix back_end && npm install --prefix api && npm install --prefix front_end",
+    "dev:api": "npm run dev --prefix api",
+    "dev:front": "npm run dev --prefix front_end",
+    "db:migrate": "npm run db:migrate --prefix back_end",
+    "db:generate": "npm run db:generate --prefix back_end",
+    "db:seed": "npm run db:seed --prefix back_end",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down"
+  }
+}
