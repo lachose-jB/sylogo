@@ -121,7 +121,7 @@ app.use(
   expressMiddleware(server, { context: buildContext })
 );
 
-app.get('/health', (_, res) => res.json({ status: 'ok', timestamp: new Date().toISOString() }));
+app.get('/health', corsMiddleware, (_, res) => res.json({ status: 'ok', timestamp: new Date().toISOString() }));
 
 const PORT = process.env.PORT ?? 4000;
 httpServer.listen(PORT, () => {

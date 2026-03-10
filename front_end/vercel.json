@@ -4,5 +4,10 @@
   "framework": "vite",
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
-  ]
+  ],
+  "env": {
+    "VITE_GRAPHQL_URL": "https://sylogo-api.onrender.com/graphql",
+    "VITE_WS_URL": "wss://sylogo-api.onrender.com/graphql",
+    "VITE_API_URL": "https://sylogo-api.onrender.com"
+  }
 }
