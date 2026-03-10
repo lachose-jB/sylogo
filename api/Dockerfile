@@ -1,6 +1,9 @@
 FROM node:20-alpine AS base
 WORKDIR /app
 
+# OpenSSL requis par Prisma sur Alpine
+RUN apk add --no-cache openssl
+
 # Install back_end deps first (shared services)
 COPY back_end/package.json /app/back_end/
 RUN cd /app/back_end && npm install --production
