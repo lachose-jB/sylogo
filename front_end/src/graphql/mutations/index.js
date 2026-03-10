@@ -65,3 +65,27 @@ export const UPDATE_PRODUCT = gql`
     }
   }
 `;
+
+export const CONFIRM_PICKUP = gql`
+  mutation ConfirmPickup($orderId: ID!) {
+    confirmPickup(orderId: $orderId) {
+      id orderId pickedUpAt
+    }
+  }
+`;
+
+export const CONFIRM_DELIVERY = gql`
+  mutation ConfirmDelivery($orderId: ID!, $proofImageUrl: String) {
+    confirmDelivery(orderId: $orderId, proofImageUrl: $proofImageUrl) {
+      id orderId deliveredAt proofImageUrl
+    }
+  }
+`;
+
+export const UPDATE_DELIVERY_LOCATION = gql`
+  mutation UpdateDeliveryLocation($orderId: ID!, $lat: Float!, $lng: Float!) {
+    updateDeliveryLocation(orderId: $orderId, lat: $lat, lng: $lng) {
+      id orderId currentLat currentLng
+    }
+  }
+`;

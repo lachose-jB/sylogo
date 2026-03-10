@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation } from '@apollo/client';
+import { Link } from 'react-router-dom';
 import { LIST_DELIVERY_USERS } from '../../graphql/queries/index.js';
 import { UPDATE_USER_STATUS } from '../../graphql/mutations/index.js';
 import Badge from '../../components/ui/Badge.jsx';
@@ -122,7 +123,9 @@ export default function DeliveryPage() {
                 </td>
                 <td className="py-2 pr-4"><Badge status={driver.status} /></td>
                 <td className="py-2">
-                  <div className="flex gap-2 flex-wrap">
+                  <div className="flex gap-2 flex-wrap items-center">
+                    <Link to={`/livreurs/${driver.id}`}
+                      className="text-xs text-primary hover:underline">Voir</Link>
                     {driver.status !== 'ACTIVE' && (
                       <button onClick={() => handle(driver.id, 'ACTIVE')}
                         className="text-xs text-green-400 hover:underline">Activer</button>

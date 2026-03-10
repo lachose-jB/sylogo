@@ -66,6 +66,7 @@ export async function listOrders(filters = {}) {
   if (filters.status) where.status = filters.status;
   if (filters.clientId) where.clientId = filters.clientId;
   if (filters.vendorId) where.vendorId = filters.vendorId;
+  if (filters.deliveryManId) where.delivery = { deliveryManId: filters.deliveryManId };
 
   return prisma.order.findMany({
     where,

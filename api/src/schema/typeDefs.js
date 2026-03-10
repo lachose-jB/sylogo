@@ -283,6 +283,7 @@ export const typeDefs = `#graphql
     status: OrderStatus
     clientId: ID
     vendorId: ID
+    deliveryManId: ID
     limit: Int
     offset: Int
   }

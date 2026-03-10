@@ -13,6 +13,7 @@ import AnalyticsPage from './pages/analytics/AnalyticsPage.jsx';
 import SettingsPage from './pages/settings/SettingsPage.jsx';
 import AuditPage from './pages/audit/AuditPage.jsx';
 import DeliveryPage from './pages/delivery/DeliveryPage.jsx';
+import DeliveryDetailPage from './pages/delivery/DeliveryDetailPage.jsx';
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
@@ -38,6 +39,7 @@ function AppRoutes() {
         <Route path="users" element={<UsersPage />} />
         <Route path="vendors" element={<VendorsPage />} />
         <Route path="livreurs" element={<DeliveryPage />} />
+        <Route path="livreurs/:id" element={<DeliveryDetailPage />} />
         <Route path="orders" element={<OrdersPage />} />
         <Route path="orders/:id" element={<OrderDetailPage />} />
         <Route path="products" element={<ProductsPage />} />

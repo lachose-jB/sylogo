@@ -115,3 +115,34 @@ export const ORDER_STATUS_CHANGED = gql`
     }
   }
 `;
+
+export const GET_DELIVERY_PROFILE = gql`
+  query GetDeliveryProfile($id: ID!) {
+    user(id: $id) {
+      id phone firstName lastName status createdAt
+      deliveryProfile {
+        id vehicleType licenseNumber isAvailable averageRating totalDeliveries
+        currentLat currentLng
+      }
+    }
+  }
+`;
+
+export const GET_DRIVER_ORDERS = gql`
+  query GetDriverOrders($deliveryManId: ID!) {
+    orders(filters: { deliveryManId: $deliveryManId, limit: 50 }) {
+      id status total createdAt
+      client { firstName lastName phone }
+      vendor { businessName }
+      delivery { pickedUpAt deliveredAt proofImageUrl }
+    }
+  }
+`;
+
+export const DELIVERY_LOCATION_UPDATED = gql`
+  subscription DeliveryLocationUpdated($orderId: ID!) {
+    deliveryLocationUpdated(orderId: $orderId) {
+      id orderId currentLat currentLng
+    }
+  }
+`;
