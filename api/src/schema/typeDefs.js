@@ -288,6 +288,11 @@ export const typeDefs = `#graphql
     offset: Int
   }
 
+  input UpdateDeliveryProfileInput {
+    vehicleType: String
+    licenseNumber: String
+  }
+
   input UpdateSettingsInput {
     baseDeliveryFee: Float
     pricePerKm: Float
@@ -376,6 +381,10 @@ export const typeDefs = `#graphql
 
     # Reviews
     createReview(input: CreateReviewInput!): Review!
+
+    # Delivery profile (livreur self-service)
+    updateDeliveryProfile(input: UpdateDeliveryProfileInput!): DeliveryProfile!
+    updateDeliveryAvailability(isAvailable: Boolean!): DeliveryProfile!
 
     # Favorites
     setFavoriteDeliveryMan(deliveryManId: ID): Boolean!

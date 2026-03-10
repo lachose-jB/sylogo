@@ -66,6 +66,27 @@ export const userResolvers = {
       await prisma.user.update({ where: { id: user.id }, data: { favoriteDeliveryManId: deliveryManId ?? null } });
       return true;
     },
+    updateDeliveryProfile: async (_, { input }, { user }) => {
+      if (!user) throw new GraphQLError('Not authenticated', { extensions: { code: 'UNAUTHENTICATED' } });
+      if (user.role !== 'DELIVERY') throw new GraphQLError('Delivery access required', { extensions: { code: 'FORBIDDEN' } });
+      const data = {};
+      if (input.vehicleType != null) data.vehicleType = input.vehicleType;
+      if (input.licenseNumber != null) data.licenseNumber = input.licenseNumber;
+      return prisma.deliveryProfile.update({
+        where: { userId: user.id },
+        data,
+        include: { user: true },
+      });
+    },
+    updateDeliveryAvailability: async (_, { isAvailable }, { user }) => {
+      if (!user) throw new GraphQLError('Not authenticated', { extensions: { code: 'UNAUTHENTICATED' } });
+      if (user.role !== 'DELIVERY') throw new GraphQLError('Delivery access required', { extensions: { code: 'FORBIDDEN' } });
+      return prisma.deliveryProfile.update({
+        where: { userId: user.id },
+        data: { isAvailable },
+        include: { user: true },
+      });
+    },
   },
   User: {
     vendorProfile: async (parent) =>
